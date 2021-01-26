@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Training.Models.University> 
+﻿@model IEnumerable<Training.Models.University>
 
 @{
     ViewData["Title"] = "Index";
@@ -12,7 +12,7 @@
         <button type="button" class="btn btn-success">Create New</button>
     </a>
 </p>
-<table class="table" id="table_id"style="width:100%" >
+<table class="table" id="table_id" style="width:100%">
     <thead>
         <tr>
             <th>
@@ -29,17 +29,42 @@
                     @Html.DisplayFor(modelItem => item.Name)
                 </td>
                 <td>
-                    <a style="text-decoration:none" asp-action="Edit" asp-route-id="@item.Id">
-                        <button type ="button" class="btn btn-primary">Edit</button>
-                     </a> |
-                    <a  style="text-decoration:none" onclick="Delete(@item.Id)">
-                        <button type="button" class="btn btn-danger">Delete</button>
-                    </a>
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#editData" id="edit">Edit</button>
+                    <button type="button" class="btn btn-danger" id="delete" onclick="Delete(@item.Id)">Delete</button>
+                    <input type="hidden" class="id" value="@item.Id" />
                 </td>
             </tr>
         }
     </tbody>
 </table>
+<!--Edit Modal Html-->
+<div id="editData" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form>
+                <div class="modal-header">
+                    <h4 class="modal-title">Edit Student</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Id</label>
+                        <input disabled type="text" class="form-control" required="required" name="id" />
+                    </div>
+                    <div class="form-group">
+                        <label>Name</label>
+                        <input type="text" class="form-control" required="required" name="name" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <input type="button" class="btn btn-default" data-dismiss="modal" value="Cancel" />
+                    <input type="button" class="btn btn-info" value="Save" onclick="Edit()"/>
+                    <input type="hidden" id="id" name="id" />
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 
 
@@ -48,18 +73,60 @@
         $('#table_id').DataTable({
             columnDefs: [
                 {
-                    targets:-1,
-                    className :'dt-body-right'
+                    targets: -1,
+                    className: 'dt-body-right'
                 },
                 {
                     targets: -1,
                     className: 'dt-head-right'
                 },
             ],
-            "autoWidth" : false
+            "autoWidth": false
         });
     });
 
+    $(document).ready(function () {
+        $('[data-google="tooltip"]').tooltip();
+
+        $('#table_id #edit').on('click', function () {
+            
+            var id = $(this).parent().find('.id').val();
+            $.ajax({
+                type: 'GET',
+                url: '/University/Find/',
+                data: {id: id},
+                success: function (univ) {
+                    $('#editData input[name="id"]').val(univ.id);
+                    $('#editData input[name="name"]').val(univ.name);
+                }
+            })
+        })
+    });
+    function Edit() {
+        var id = $('#editData input[name="id"]').val();
+        var name = $('#editData input[name="name"]').val();
+        var model = { Id: id, Name: name };
+        $.ajax({
+            method:"POST",
+            url: "/University/Edit/",
+            data: {
+                id: id,
+                university : model
+            }
+        }).done(function (data) {
+            if (data == 1) {
+                Swal.fire(
+                    'Updated!',
+                    'Your file has been updated.',
+                    'success'
+                ).then(function () {
+                    location.reload();
+                });
+            }
+        }).fail(function (data) {
+
+        })
+    }
     function Delete(id) {
         Swal.fire({
             title: 'Are you sure?',

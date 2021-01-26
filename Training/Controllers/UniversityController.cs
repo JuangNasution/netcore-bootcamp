@@ -52,9 +52,7 @@ namespace Training.Controllers
             }
             return View(result);
         }
-
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public IActionResult Edit(int? id, University university)
         {
             if (id.Equals(null))
@@ -68,11 +66,12 @@ namespace Training.Controllers
                 myContext.Entry(get).State = EntityState.Modified;
                 var result = myContext.SaveChanges();
                 if (result > 0)
-                    return RedirectToAction("Index");
+                    return Json(result);
                 return View(result);
             }
-            return View();
+            return Json(0);
         }
+
 
         public IActionResult Delete(int? id)
         {
@@ -86,6 +85,12 @@ namespace Training.Controllers
             }
             
             return Json(0);
+        }
+
+        public IActionResult Find(int id)
+        {
+            var univ = myContext.Universities.Find(id);
+            return new JsonResult(univ);
         }
     }
 }
