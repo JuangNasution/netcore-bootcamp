@@ -1,0 +1,77 @@
+﻿@model IEnumerable<Training.Models.Profiling>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Education)
+            </th>
+            <th style="width :20%">
+                @Html.DisplayNameFor(model => model.Account)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Education.Degree)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Account.NIK)
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.NIK">Edit</a> |
+                    <a onclick="Delete(@item.NIK)">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+<script>
+
+    function Delete(id) {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: "/Profiling/Delete/",
+                    data: { id: id }
+                }).done(function (data) {
+                    if (data == 1) {
+                        Swal.fire(
+                            'Deleted!',
+                            'Your file has been deleted.',
+                            'success'
+                        ).then(function () {
+                            location.reload();
+                        });
+                    }
+                }).fail(function (data) {
+
+                })
+
+            }
+        })
+
+    }
+</script>
